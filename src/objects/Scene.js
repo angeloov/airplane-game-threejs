@@ -1,6 +1,6 @@
 import {
   Group,
-  MeshPhongMaterial,
+  HemisphereLight,
   Mesh,
   PlaneGeometry,
   SpotLight,
@@ -8,58 +8,83 @@ import {
   Fog,
   SphereGeometry,
   AxesHelper,
-  Object3D,
+  PointLight,
 } from "three";
 
 import Airplane from "./Airplane";
+import Asteroid from "./Asteorid";
+import Earth from "./Earth";
+
+import { AmbientLight } from "three";
+import { CameraHelper } from "three";
+import { Plane } from "three";
+import { MeshPhongMaterial } from "three";
+import { DirectionalLight } from "three";
 
 class Scene extends Group {
   constructor() {
     super();
 
-    const geometry = new PlaneGeometry(50, 50);
-    const material = new MeshBasicMaterial({ color: 0x787878 });
-    const plane = new Mesh(geometry, material);
-    plane.receiveShadow = true;
-    plane.position.y = -5;
+    this.objects = [];
 
-    plane.rotateX(-Math.PI / 2);
+    let g = new SphereGeometry(1);
+    let m = new MeshBasicMaterial({ color: 0xffffff });
+    this.point = new Mesh(g, m);
+    this.point.position.set(0, 0, 0);
 
-    let a = new Airplane();
+    this.earth = new Earth(100);
+    this.airplane = new Airplane();
+    this.asteroid = new Asteroid();
 
-    let asteroidGeometry = new SphereGeometry(2);
-    let asteroidMaterial = new MeshBasicMaterial({ color: 0x666666 });
+    // let geom = new PlaneGeometry(100, 100);
+    // let mater = new MeshPhongMaterial({ color: 0xb9fbc0 });
+    // this.earth = new Mesh(geom, mater);
+    // this.earth.rotateX(-Math.PI / 2);
+    // this.earth.receiveShadow = true;
 
-    let asteroid = new Mesh(asteroidGeometry, asteroidMaterial);
-    asteroid.position.z = 10;
+    this.objects.push(this.airplane, this.earth);
+    this.addAllObjectsToScene();
+    // const pivotPoint = new Object3D();
+    // pivotPoint.add(asteroid);
 
-    const pivotPoint = new Object3D();
-    pivotPoint.add(asteroid);
+    // this.pivotPoint = pivotPoint;
 
-    this.pivotPoint = pivotPoint;
-    this.airplane = a;
-    this.asteroid = asteroid;
-
-    this.add(a);
-    this.add(plane);
-    // this.add(asteroid);
-    this.add(pivotPoint);
+    // this.add(pivotPoint);
 
     this.setupLights();
     this.toggleAxisHelper();
   }
 
+  addAllObjectsToScene() {
+    for (let obj of this.objects) {
+      this.add(obj);
+    }
+  }
+
   toggleAxisHelper() {
     const axesHelper = new AxesHelper(5);
+    axesHelper.position.set(0, 0, 0);
     this.add(axesHelper);
   }
 
   setupLights() {
-    let light = new SpotLight(0xffffff, 0.5);
-    light.position.y = 10;
-    light.position.z = -5;
+    let light = new DirectionalLight(0xf0f0f0, 2);
+    light.position.y = 40;
+    // light.position.z = 100;
+    // light.rotation.x = Math.PI / 2;
+
+    light.target = this.airplane;
+
+    light.castShadow = true;
+    light.shadow.camera.near = 2;
+    light.shadow.camera.far = 50;
+    // light.shadow.mapSize.set(100, 100)
+
+    let a = new CameraHelper(light.shadow.camera);
+    this.add(a);
 
     this.add(light);
+    this.add(light.target);
   }
 }
 
