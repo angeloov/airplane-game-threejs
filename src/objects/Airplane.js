@@ -7,25 +7,25 @@ const map = (val, start1, end1, start2, end2) => {
   return start2 + ((val - start1) * (end2 - start2)) / (end1 - start1);
 };
 
-class Airplane extends Group {
+class Airplane extends Mesh {
   constructor() {
     // const cubeGeom = new BoxGeometry(5, 2, 5);
     // const cubeMaterial = new MeshPhongMaterial();
     // super(cubeGeom, cubeMaterial);
 
     super();
-    this.loadModel();
+    this.load3DModel();
     this.castShadow = true;
   }
 
-  loadModel() {
+  load3DModel() {
     let loader = new FBXLoader();
 
     loader.load(
       model,
       obj => {
         console.log(obj);
-        obj.scale.setScalar(0.02);
+        obj.scale.setScalar(0.01);
         obj.position.y = 1;
         obj.rotateY(Math.PI);
         // obj.receiveShadow = true;
@@ -47,7 +47,7 @@ class Airplane extends Group {
     let viewportHeight = document.body.clientHeight;
     let viewportWidth = document.body.clientWidth;
 
-    let targetY = map(mousePosition.y, 0, viewportHeight, 10, 0);
+    let targetY = map(mousePosition.y, 0, viewportHeight, 15, 0);
     this.position.y += (targetY - this.position.y) * 0.1;
     this.rotation.x = (targetY - this.position.y) * 0.08;
     // this.position.y = targetY;

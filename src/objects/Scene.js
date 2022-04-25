@@ -32,7 +32,7 @@ class Scene extends Group {
     this.point = new Mesh(g, m);
     this.point.position.set(0, 0, 0);
 
-    this.earth = new Earth(100);
+    this.earth = new Earth(200);
     this.airplane = new Airplane();
     this.asteroid = new Asteroid();
 

@@ -23,8 +23,9 @@ const gui = new dat.GUI();
 gui.add(camera.rotation, "x", -Math.PI, Math.PI);
 
 // camera
-camera.position.set(0, 15, 15);
-camera.rotateX(-Math.PI / 5);
+camera.position.set(0, 40, 30);
+camera.rotateX(-Math.PI / 4);
+// camera.rotateX(0);
 // renderer
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setClearColor(0x00256f, 1);
@@ -33,13 +34,13 @@ renderer.shadowMap.enabled = true;
 renderer.physicallyCorrectLights = true;
 
 // orbit controls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.dragToLook = true;
-controls.enableDamping = true;
-controls.enablePan = false;
-controls.dampingFactor = 0.3;
-controls.minDistance = 10;
-controls.maxDistance = 500;
+// const controls = new OrbitControls(camera, renderer.domElement);
+// controls.dragToLook = true;
+// controls.enableDamping = true;
+// controls.enablePan = false;
+// controls.dampingFactor = 0.3;
+// controls.minDistance = 10;
+// controls.maxDistance = 500;
 
 const mousePosition = {
   x: Math.round(document.body.clientWidth / 2),
@@ -63,6 +64,10 @@ const onAnimationFrameHandler = timeStamp => {
   seedScene.airplane.handleMovement(mousePosition);
 
   if (seedScene.earth) seedScene.earth.rotation.x += 0.0025;
+
+  localStorage.setItem("xpos", seedScene.airplane.position.x);
+  localStorage.setItem("ypos", seedScene.airplane.position.y);
+  localStorage.setItem("zpos", seedScene.airplane.position.z);
 
   // let geometry = seedScene.earth.geometry;
   // let count = geometry.attributes.position.count;
@@ -94,10 +99,9 @@ const onAnimationFrameHandler = timeStamp => {
   // cannon end
   // console.log(seedScene.airplane.position);
 
-  controls.update();
+  // controls.update();
   world.fixedStep();
 
-  // seedScene.pivotPoint.rotation.y += 0.05;
   window.requestAnimationFrame(onAnimationFrameHandler);
 };
 window.requestAnimationFrame(onAnimationFrameHandler);
