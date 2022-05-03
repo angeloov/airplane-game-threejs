@@ -12,7 +12,7 @@ import {
 } from "three";
 
 import Airplane from "./Airplane";
-import Asteroid from "./Asteorid";
+import Asteroid from "./Coin";
 import Earth from "./Earth";
 
 import { AmbientLight } from "three";
@@ -20,6 +20,7 @@ import { CameraHelper } from "three";
 import { Plane } from "three";
 import { MeshPhongMaterial } from "three";
 import { DirectionalLight } from "three";
+import Coin from "./Coin";
 
 class Scene extends Group {
   constructor() {
@@ -27,29 +28,12 @@ class Scene extends Group {
 
     this.objects = [];
 
-    let g = new SphereGeometry(1);
-    let m = new MeshBasicMaterial({ color: 0xffffff });
-    this.point = new Mesh(g, m);
-    this.point.position.set(0, 0, 0);
-
-    this.earth = new Earth(200);
+    this.earth = new Earth(1000);
     this.airplane = new Airplane();
-    this.asteroid = new Asteroid();
-
-    // let geom = new PlaneGeometry(100, 100);
-    // let mater = new MeshPhongMaterial({ color: 0xb9fbc0 });
-    // this.earth = new Mesh(geom, mater);
-    // this.earth.rotateX(-Math.PI / 2);
-    // this.earth.receiveShadow = true;
+    this.coins = [];
 
     this.objects.push(this.airplane, this.earth);
     this.addAllObjectsToScene();
-    // const pivotPoint = new Object3D();
-    // pivotPoint.add(asteroid);
-
-    // this.pivotPoint = pivotPoint;
-
-    // this.add(pivotPoint);
 
     this.setupLights();
     this.toggleAxisHelper();

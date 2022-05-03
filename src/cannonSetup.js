@@ -1,36 +1,44 @@
-import { World, Body, Plane, Vec3, Sphere, Box } from "cannon-es";
+import { World, Body, Vec3, Box, Sphere } from "cannon-es";
+
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
+import airplaneModel from "./models/Plane.fbx";
 
 // Setup our physics world
 const world = new World({
   gravity: new Vec3(0, 0, 0), // m/s²
 });
 
+// let loader = new FBXLoader();
+
+// loader.load(
+//   airplaneModel,
+//   obj => {
+//     console.log(obj);
+//   },
+//   null,
+//   () => console.error("Azz! Errore")
+// );
+
 // Create a sphere body
 const airplaneBody = new Body({
   mass: 1, // kg
-  shape: new Box(new Vec3(5, 2, 5)),
+  shape: new Box(new Vec3(4, 4, 4)),
+  type: Body.STATIC
 });
-airplaneBody.position.set(0, 40, 0); // m
+airplaneBody.position.set(0, 10, 0); // m
 
-// world.addBody(airplaneBody);
+world.addBody(airplaneBody);
 
-const sphere = new Body({
+const asteroidBody = new Body({
   mass: 1,
   shape: new Sphere(2),
+  type: Body.STATIC
 });
-sphere.position.set(0, 10, 0);
-sphere.addEventListener("collide", () => {
-  console.log("Collision!!");
+asteroidBody.position.set(0, 10, 0);
+
+airplaneBody.addEventListener("collide", () => {
+  console.log("Collision!");
 });
-// world.addBody(sphere);
+world.addBody(asteroidBody);
 
-// Create a static plane for the ground
-// const groundBody = new Body({
-//   type: Body.STATIC, // can also be achieved by setting the mass to 0
-//   shape: new Plane(),
-// });
-// groundBody.position.y = -5;
-// groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0); // make it face up
-// world.addBody(groundBody);
-
-export { airplaneBody, world, sphere };
+export { airplaneBody, world, asteroidBody };
