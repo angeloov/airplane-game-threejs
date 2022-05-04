@@ -26,9 +26,6 @@ gui.add(camera.rotation, "z", -Math.PI, Math.PI);
 
 // camera
 camera.position.set(50, 45, 0);
-// camera.rotateX(-Math.PI / 4);
-// camera.rotateY(Math.PI);
-// camera.rotateX(0);
 camera.lookAt(new Vector3(0, 20, 0));
 
 // renderer
@@ -65,6 +62,7 @@ collidableMeshList.push(seedScene.asteroid);
 
 document.body.addEventListener("keydown", e => {
   if (e.ctrlKey) seedScene.earth.spawnCoin();
+  else if (e.key === "\\") seedScene.earth.removeCoin();
 });
 
 // render loop
