@@ -4,15 +4,13 @@ import model from "../models/Plane.fbx";
 
 import { map } from "../lib/utils";
 
-import { airplaneBody } from "../cannonSetup";
-
 class Airplane extends Mesh {
   constructor() {
-    const cubeGeom = new BoxGeometry(4, 4, 4);
-    const cubeMaterial = new MeshPhongMaterial();
-    super(cubeGeom, cubeMaterial);
-    // super();
-    // this.load3DModel();
+    // const cubeGeom = new BoxGeometry(4, 4, 4);
+    // const cubeMaterial = new MeshPhongMaterial();
+    // super(cubeGeom, cubeMaterial);
+    super();
+    this.load3DModel();
 
     this.castShadow = true;
   }
@@ -23,7 +21,7 @@ class Airplane extends Mesh {
     loader.load(
       model,
       obj => {
-        obj.scale.setScalar(0.01);
+        obj.scale.setScalar(0.02);
         obj.position.y = 1;
         obj.rotateY(Math.PI);
 

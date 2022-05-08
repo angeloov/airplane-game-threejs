@@ -11,10 +11,11 @@ import { WebGLRenderer, PerspectiveCamera, Scene, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import SeedScene from "./objects/Scene.js";
 import * as dat from "dat.gui";
+import style from "./styles";
 
 const scene = new Scene();
 const camera = new PerspectiveCamera();
-const renderer = new WebGLRenderer({ antialias: true });
+const renderer = new WebGLRenderer({ antialias: true, alpha: true });
 const seedScene = new SeedScene();
 // scene
 scene.add(seedScene);
@@ -24,13 +25,18 @@ gui.add(camera.rotation, "x", -Math.PI, Math.PI);
 gui.add(camera.rotation, "y", -Math.PI, Math.PI);
 gui.add(camera.rotation, "z", -Math.PI, Math.PI);
 
+const fncs = {
+  spawnCoins: () => seedScene.earth.spawnCoins(),
+};
+gui.add(fncs, "spawnCoins");
+
 // camera
 camera.position.set(50, 45, 0);
 camera.lookAt(new Vector3(0, 20, 0));
 
 // renderer
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setClearColor(0x00256f, 1);
+renderer.setClearColor(0x000000, 0);
 // renderer.shadowMap.type = PCFSoftShadowMap;
 renderer.shadowMap.enabled = true;
 renderer.physicallyCorrectLights = true;
@@ -49,16 +55,34 @@ const mousePosition = {
   y: Math.round(document.body.clientHeight / 2),
 };
 
+const gameStats = {
+  score: 0,
+};
+
+// --- Setup styles
+
+import jss from "jss";
+import preset from "jss-preset-default";
+
+jss.setup(preset());
+
+// Compile styles, apply plugins, insert to DOM.
+import { sheet } from "./styles";
+sheet.attach();
+
+let scoreP = document.querySelector("#score");
+const updateScore = () => (scoreP.innerText = gameStats.score);
+updateScore();
+
+import backgroundImage from "./assets/background.png";
+document.body.appendChild(scoreP);
+document.body.style.backgroundImage = `url(${backgroundImage})`;
+// ---
+
 document.body.addEventListener("mousemove", e => {
   mousePosition.x = e.clientX;
   mousePosition.y = e.clientY;
 });
-
-import { airplaneBody, groundBody, world, asteroidBody } from "./cannonSetup";
-
-let cube = seedScene.airplane;
-let collidableMeshList = [];
-collidableMeshList.push(seedScene.asteroid);
 
 document.body.addEventListener("keydown", e => {
   if (e.ctrlKey) seedScene.earth.spawnCoin();
@@ -76,32 +100,28 @@ const onAnimationFrameHandler = timeStamp => {
 
   seedScene.earth.angle += 0.001;
 
-  for (let coin of seedScene.coins) {
-    let d = seedScene.airplane.position.clone().sub(coin.position).length();
-    if (d < 1.1) {
-      console.log(" HIT ");
+  for (let i = 0; i < seedScene.earth.coins.length; i++) {
+    let coin = seedScene.earth.coins[i];
+
+    const { x: x1, y: y1, z: z1 } = seedScene.airplane.position;
+    const { x: x2, y: y2, z: z2 } = coin.getWorldPosition(new Vector3(0, 0, 0));
+    const distanceAirplaneCoin = Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2 + (z1 - z2) ** 2);
+
+    coin.rotation.y += 0.1;
+
+    if (distanceAirplaneCoin < coin.radius + 2) {
+      seedScene.earth.remove(coin);
+      seedScene.earth.coins.splice(i, 1);
+      i--;
+
+      gameStats.score++;
+      updateScore();
+
+      console.log(seedScene.earth.coins);
     }
   }
 
-  // cannon config
-  // airplaneBody.position.copy(seedScene.airplane.position);
-  // airplaneBody.quaternion.copy(seedScene.airplane.quaternion);
-
-  // console.log(seedScene.airplane.position.y, airplaneBody.position.y);
-  // seedScene.airplane.position.copy(airplaneBody.position);
-  // seedScene.airplane.quaternion.copy(airplaneBody.quaternion);
-
-  // console.log(airplaneBody.position.y);
-
-  // seedScene.asteroid.position.copy(asteroidBody.position);
-  // seedScene.asteroid.quaternion.copy(asteroidBody.quaternion);
-
-  // cannon end
-  // console.log(seedScene.asteroid.position.y);
-  // console.log(seedScene.airplane.position.y);
-
   controls.update();
-  world.fixedStep();
 
   window.requestAnimationFrame(onAnimationFrameHandler);
 };

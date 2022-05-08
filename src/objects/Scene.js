@@ -67,6 +67,10 @@ class Scene extends Group {
     let a = new CameraHelper(light.shadow.camera);
     this.add(a);
 
+    let ambientLight = new AmbientLight(0x404040);
+    this.add(ambientLight)
+
+
     this.add(light);
     this.add(light.target);
   }

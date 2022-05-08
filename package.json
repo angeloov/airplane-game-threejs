@@ -17,6 +17,8 @@
   "dependencies": {
     "cannon-es": "^0.19.0",
     "dat.gui": "^0.7.9",
+    "jss": "^10.9.0",
+    "jss-preset-default": "^10.9.0",
     "three": "^0.139.0",
     "webpack-cli": "^4.9.2"
   },
