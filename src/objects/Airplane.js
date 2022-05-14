@@ -1,6 +1,6 @@
-import { Mesh, BoxGeometry, MeshPhongMaterial } from "three";
+import { Mesh, AnimationMixer } from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
-import model from "../models/Plane.fbx";
+import model from "../models/Airplane.fbx";
 
 import { map } from "../lib/utils";
 
@@ -21,9 +21,15 @@ class Airplane extends Mesh {
     loader.load(
       model,
       obj => {
-        obj.scale.setScalar(0.02);
+        const mixer = new AnimationMixer(obj);
+        this.mixer = mixer;
+
+        const action = mixer.clipAction(obj.animations[1]);
+        action.play();
+
+        obj.scale.setScalar(0.015);
         obj.position.y = 1;
-        obj.rotateY(Math.PI);
+        obj.rotateY(Math.PI / 2);
 
         obj.traverse(function (a) {
           if (a.isMesh) a.castShadow = true;
@@ -45,14 +51,8 @@ class Airplane extends Mesh {
     const viewportHeight = document.body.clientHeight;
 
     const targetY = map(mousePosition.y, 0, viewportHeight, MAX_Y, MIN_Y);
-    // airplaneBody.position.y += (targetY - airplaneBody.position.y) * 0.1;
     this.position.y += (targetY - this.position.y) * 0.1;
     this.rotation.x = (targetY - this.position.y) * 0.08;
-
-    // let viewportWidth = document.body.clientWidth;
-    // let targetX = map(mousePosition.x, 0, viewportWidth, -10, 10);
-    // this.position.x += (targetX - this.position.x) * 0.2;
-    // this.rotation.z = (this.position.x - targetX) * 0.09;
   }
 }
 

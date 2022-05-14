@@ -1,8 +1,4 @@
-import { MeshPhongMaterial } from "three";
-import { Vector3 } from "three";
-import { Vector2 } from "three";
 import { SphereGeometry, Mesh, MeshLambertMaterial, Group, MathUtils } from "three";
-import Asteroid from "./Coin";
 
 import { random } from "../lib/utils";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -33,28 +29,36 @@ class Earth extends Mesh {
     const offsetAngle = 0.05;
     const angle = this.angle + offsetAngle;
 
-    // coin.position.z = (this.radius + 10) * Math.cos(angle);
-    // coin.position.y = (this.radius + 1.1 * Math.cos(angle * 20) ** 2 * 20) * Math.sin(angle);
-    coin.position.z = Math.cos(angle) * this.radius + 24 * Math.cos(angle * 20) ** 3;
-    coin.position.y = Math.sin(angle) * this.radius + 10 * Math.cos(angle * 24) ** 2;
+    const radius = this.radius + 10;
+
+    const c = 8;
+    const d = 50;
+
+    coin.position.z = Math.cos(angle) * radius + c * Math.cos(d * angle);
+    coin.position.y = Math.sin(angle) * radius + c * Math.sin(d * angle);
     coin.position.x = 0;
-    
+
     this.coins.push(coin);
     this.add(coin);
   }
-  
+
   spawnCoins() {
     let numOfCoins = Math.ceil(3 + Math.random() * 5);
+
+    const radius = this.radius + 10;
+
+    const c = 8;
+    const d = 50;
 
     let angle = this.angle + 0.05;
     for (let i = 0; i < numOfCoins; i++) {
       const coin = new Coin(1);
 
       angle += i * 0.004;
-      coin.position.z = Math.cos(angle) * this.radius;
-      coin.position.y = Math.sin(angle) * this.radius + 10 * Math.cos(angle * 24) ** 2;
+      coin.position.z = Math.cos(angle) * radius + c * Math.cos(d * angle);
+      coin.position.y = Math.sin(angle) * radius + c * Math.sin(d * angle);
       coin.position.x = 0;
-      
+
       this.coins.push(coin);
       this.add(coin);
     }
@@ -73,7 +77,7 @@ class Earth extends Mesh {
     loader.load(
       earthModel,
       obj => {
-        obj.scene.scale.setScalar(245);
+        obj.scene.scale.setScalar(199);
 
         obj.scene.traverse(a => {
           if (a.isMesh) a.castShadow = true;

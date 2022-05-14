@@ -31,7 +31,7 @@ const fncs = {
 gui.add(fncs, "spawnCoins");
 
 // camera
-camera.position.set(50, 45, 0);
+camera.position.set(70, 35, 0);
 camera.lookAt(new Vector3(0, 20, 0));
 
 // renderer
@@ -42,13 +42,13 @@ renderer.shadowMap.enabled = true;
 renderer.physicallyCorrectLights = true;
 
 // orbit controls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.dragToLook = true;
-controls.enableDamping = true;
-controls.enablePan = false;
-controls.dampingFactor = 0.3;
-controls.minDistance = 10;
-controls.maxDistance = 500;
+// const controls = new OrbitControls(camera, renderer.domElement);
+// controls.dragToLook = true;
+// controls.enableDamping = true;
+// controls.enablePan = false;
+// controls.dampingFactor = 0.3;
+// controls.minDistance = 10;
+// controls.maxDistance = 500;
 
 const mousePosition = {
   x: Math.round(document.body.clientWidth / 2),
@@ -75,6 +75,7 @@ const updateScore = () => (scoreP.innerText = gameStats.score);
 updateScore();
 
 import backgroundImage from "./assets/background.png";
+import { Clock } from "three";
 document.body.appendChild(scoreP);
 document.body.style.backgroundImage = `url(${backgroundImage})`;
 // ---
@@ -89,6 +90,8 @@ document.body.addEventListener("keydown", e => {
   else if (e.key === "\\") seedScene.earth.removeCoin();
 });
 
+const clock = new Clock();
+
 // render loop
 const onAnimationFrameHandler = timeStamp => {
   renderer.render(scene, camera);
@@ -100,6 +103,14 @@ const onAnimationFrameHandler = timeStamp => {
 
   seedScene.earth.angle += 0.001;
 
+  const delta = clock.getDelta();
+  // console.log(delta);
+  // seedScene.airplane.mixer.update(delta);
+  if (seedScene.airplane.mixer) {
+    seedScene.airplane.mixer.update(delta);
+  }
+  // console.log(seedScene.airplane.mixer);
+
   for (let i = 0; i < seedScene.earth.coins.length; i++) {
     let coin = seedScene.earth.coins[i];
 
@@ -109,7 +120,7 @@ const onAnimationFrameHandler = timeStamp => {
 
     coin.rotation.y += 0.1;
 
-    if (distanceAirplaneCoin < coin.radius + 2) {
+    if (distanceAirplaneCoin < coin.radius + 2.8) {
       seedScene.earth.remove(coin);
       seedScene.earth.coins.splice(i, 1);
       i--;
@@ -121,7 +132,7 @@ const onAnimationFrameHandler = timeStamp => {
     }
   }
 
-  controls.update();
+  // controls.update();
 
   window.requestAnimationFrame(onAnimationFrameHandler);
 };
