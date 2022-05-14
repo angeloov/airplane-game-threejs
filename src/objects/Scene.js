@@ -12,15 +12,13 @@ import {
 } from "three";
 
 import Airplane from "./Airplane";
-import Asteroid from "./Coin";
+import Asteroid from "./Asteroid";
 import Earth from "./Earth";
 
 import { AmbientLight } from "three";
 import { CameraHelper } from "three";
-import { Plane } from "three";
 import { MeshPhongMaterial } from "three";
 import { DirectionalLight } from "three";
-import Coin from "./Coin";
 
 class Scene extends Group {
   constructor() {
@@ -32,7 +30,9 @@ class Scene extends Group {
     this.airplane = new Airplane();
     this.coins = [];
 
-    this.objects.push(this.airplane, this.earth);
+    this.asteroid = new Asteroid();
+
+    this.objects.push(this.airplane, this.earth, this.asteroid);
     this.addAllObjectsToScene();
 
     this.setupLights();
@@ -60,8 +60,8 @@ class Scene extends Group {
     light.target = this.airplane;
 
     light.castShadow = true;
-    light.shadow.camera.near = 2;
-    light.shadow.camera.far = 50;
+    light.shadow.camera.near = 10;
+    light.shadow.camera.far = 60;
     // light.shadow.mapSize.set(100, 100)
 
     let a = new CameraHelper(light.shadow.camera);

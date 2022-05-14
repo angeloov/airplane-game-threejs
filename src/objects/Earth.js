@@ -3,8 +3,8 @@ import { SphereGeometry, Mesh, MeshLambertMaterial, Group, MathUtils } from "thr
 import { random } from "../lib/utils";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import earthModel from "../models/Earth.glb";
-import { BoxGeometry } from "three";
 import Coin from "./Coin";
+import Asteroid from "./Asteroid";
 
 class Earth extends Mesh {
   constructor(radius) {
@@ -17,6 +17,7 @@ class Earth extends Mesh {
     this.position.y = -radius;
 
     this.coins = [];
+    this.asteroids = [];
     this.angle = Math.PI / 2;
 
     this.receiveShadow = true;
@@ -29,9 +30,9 @@ class Earth extends Mesh {
     const offsetAngle = 0.05;
     const angle = this.angle + offsetAngle;
 
-    const radius = this.radius + 10;
+    const radius = this.radius + 15;
 
-    const c = 8;
+    const c = 12;
     const d = 50;
 
     coin.position.z = Math.cos(angle) * radius + c * Math.cos(d * angle);
@@ -47,14 +48,14 @@ class Earth extends Mesh {
 
     const radius = this.radius + 10;
 
-    const c = 8;
+    const c = 10;
     const d = 50;
 
     let angle = this.angle + 0.05;
     for (let i = 0; i < numOfCoins; i++) {
       const coin = new Coin(1);
 
-      angle += i * 0.004;
+      angle += i * 0.003;
       coin.position.z = Math.cos(angle) * radius + c * Math.cos(d * angle);
       coin.position.y = Math.sin(angle) * radius + c * Math.sin(d * angle);
       coin.position.x = 0;
@@ -71,6 +72,12 @@ class Earth extends Mesh {
     }
   }
 
+  spawnAsteroid() {
+    const asteroid = new Asteroid();
+    // To implement
+    this.asteroids.push(asteroid);
+  }
+
   load3DModel() {
     let loader = new GLTFLoader();
 
@@ -80,7 +87,10 @@ class Earth extends Mesh {
         obj.scene.scale.setScalar(199);
 
         obj.scene.traverse(a => {
-          if (a.isMesh) a.castShadow = true;
+          if (a.isMesh) {
+            a.castShadow = true;
+            a.receiveShadow = true;
+          }
         });
 
         this.add(obj.scene);

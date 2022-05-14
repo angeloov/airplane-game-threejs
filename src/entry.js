@@ -42,13 +42,13 @@ renderer.shadowMap.enabled = true;
 renderer.physicallyCorrectLights = true;
 
 // orbit controls
-// const controls = new OrbitControls(camera, renderer.domElement);
-// controls.dragToLook = true;
-// controls.enableDamping = true;
-// controls.enablePan = false;
-// controls.dampingFactor = 0.3;
-// controls.minDistance = 10;
-// controls.maxDistance = 500;
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.dragToLook = true;
+controls.enableDamping = true;
+controls.enablePan = false;
+controls.dampingFactor = 0.3;
+controls.minDistance = 10;
+controls.maxDistance = 500;
 
 const mousePosition = {
   x: Math.round(document.body.clientWidth / 2),
@@ -56,7 +56,7 @@ const mousePosition = {
 };
 
 const gameStats = {
-  score: 0,
+  energy: 50,
 };
 
 // --- Setup styles
@@ -70,14 +70,21 @@ jss.setup(preset());
 import { sheet } from "./styles";
 sheet.attach();
 
-let scoreP = document.querySelector("#score");
-const updateScore = () => (scoreP.innerText = gameStats.score);
-updateScore();
+const energyElem = document.querySelector("#energy-bar");
+const decreaseEnergy = () => {
+  gameStats.energy -= 0.5;
+  energyElem.style.width = gameStats.energy * 4 + "px";
+};
 
-import backgroundImage from "./assets/background.png";
-import { Clock } from "three";
-document.body.appendChild(scoreP);
-document.body.style.backgroundImage = `url(${backgroundImage})`;
+setInterval(() => {
+  decreaseEnergy();
+}, 500);
+
+console.log(seedScene.children);
+
+// let scoreP = document.querySelector("#score");
+// updateScore();
+
 // ---
 
 document.body.addEventListener("mousemove", e => {
@@ -90,6 +97,7 @@ document.body.addEventListener("keydown", e => {
   else if (e.key === "\\") seedScene.earth.removeCoin();
 });
 
+import { Clock } from "three";
 const clock = new Clock();
 
 // render loop
@@ -104,12 +112,10 @@ const onAnimationFrameHandler = timeStamp => {
   seedScene.earth.angle += 0.001;
 
   const delta = clock.getDelta();
-  // console.log(delta);
-  // seedScene.airplane.mixer.update(delta);
+
   if (seedScene.airplane.mixer) {
     seedScene.airplane.mixer.update(delta);
   }
-  // console.log(seedScene.airplane.mixer);
 
   for (let i = 0; i < seedScene.earth.coins.length; i++) {
     let coin = seedScene.earth.coins[i];
@@ -125,14 +131,11 @@ const onAnimationFrameHandler = timeStamp => {
       seedScene.earth.coins.splice(i, 1);
       i--;
 
-      gameStats.score++;
-      updateScore();
-
-      console.log(seedScene.earth.coins);
+      gameStats.energy++;
     }
   }
 
-  // controls.update();
+  controls.update();
 
   window.requestAnimationFrame(onAnimationFrameHandler);
 };
