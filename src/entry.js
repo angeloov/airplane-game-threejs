@@ -17,6 +17,9 @@ const scene = new Scene();
 const camera = new PerspectiveCamera();
 const renderer = new WebGLRenderer({ antialias: true, alpha: true });
 const seedScene = new SeedScene();
+
+scene.fog = new Fog(0xefd2a0, 350, 700);
+// scene.background = new Color(0x00ff00);
 // scene
 scene.add(seedScene);
 
@@ -26,13 +29,14 @@ export const gameStats = {
   airplaneYCoord: 0,
   rotationSpeed: 0.002,
   minRotationSpeed: 0.002,
-  maxRotationSpeed: 0.005,
+  maxRotationSpeed: 0.0035,
   isPlaying: true,
+  resetEnergy: () => (this.energy = 100),
 };
 
 const gui = new dat.GUI();
 gui.add(camera.rotation, "x", -Math.PI, Math.PI);
-gui.add(camera.rotation, "y", -Math.PI, Math.PI);
+// gui.add(camera.rotation, "y", -Math.PI, Math.PI);
 gui.add(camera.rotation, "z", -Math.PI, Math.PI);
 gui.add(gameStats, "rotationSpeed", 0.001, 0.004, 0.0001);
 
@@ -47,7 +51,7 @@ camera.lookAt(new Vector3(0, 20, 0));
 
 // renderer
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setClearColor(0x000000, 0);
+// renderer.setClearColor(0x000, 0);
 // renderer.shadowMap.type = PCFSoftShadowMap;
 renderer.shadowMap.enabled = true;
 renderer.physicallyCorrectLights = true;
@@ -59,7 +63,7 @@ controls.enableDamping = true;
 controls.enablePan = false;
 controls.dampingFactor = 0.3;
 controls.minDistance = 10;
-controls.maxDistance = 500;
+controls.maxDistance = 1000;
 
 const mousePosition = {
   x: Math.round(document.body.clientWidth / 2),
@@ -84,7 +88,7 @@ const decreaseEnergy = () => {
     energyElem.style.width = gameStats.energy * 2 + "px";
     return;
   }
-  
+
   gameStats.energy -= 2;
   energyElem.style.width = gameStats.energy * 2 + "px";
 };
@@ -103,6 +107,9 @@ document.body.addEventListener("keydown", e => {
 
 import { Clock } from "three";
 import { random } from "./lib/utils.js";
+import { Fog } from "three";
+import { Color } from "three";
+import { WebGLMultipleRenderTargets } from "three";
 const clock = new Clock();
 
 let nextTimeAsteroidWillSpawn;
@@ -119,31 +126,31 @@ const onAnimationFrameHandler = timeStamp => {
   if (seconds > gameStats.timeInSec) {
     gameStats.timeInSec = seconds;
 
-    nextTimeAsteroidWillSpawn = Math.floor(random(3, 8));
+    nextTimeAsteroidWillSpawn = Math.floor(random(1, 3));
     decreaseEnergy();
 
-    if (gameStats.energy >= 20 || gameStats.energy <= 80) {
+    if (gameStats.energy > 20 && gameStats.energy < 80) {
       gameStats.rotationSpeed = gameStats.maxRotationSpeed;
     } else {
       gameStats.rotationSpeed = gameStats.minRotationSpeed;
     }
 
-    if (seconds % 6 === 0) seedScene.earth.spawnCoins();
+    if (seconds % 4 === 0) seedScene.earth.spawnCoins();
     else if (seconds % nextTimeAsteroidWillSpawn === 0) seedScene.earth.spawnAsteroid();
   }
 
-  if (gameStats.energy === 0) {
+  if (gameStats.energy === 0 && gameStats.isPlaying) {
     console.log("Game over");
     gameStats.isPlaying = false;
+    seedScene.airplane.isAlive = false;
   }
 
   if (seedScene.earth) seedScene.earth.rotation.x += gameStats.rotationSpeed;
   seedScene.earth.angle += gameStats.rotationSpeed;
 
-  const delta = clock.getDelta();
-
   gameStats.airplaneYCoord = seedScene.airplane.position.y;
 
+  const delta = clock.getDelta();
   if (seedScene.airplane.mixer) {
     seedScene.airplane.mixer.update(delta);
   }
@@ -157,7 +164,7 @@ const onAnimationFrameHandler = timeStamp => {
 
     coin.rotation.y += 0.1;
 
-    if (distanceAirplaneCoin < coin.radius + 2.8) {
+    if (distanceAirplaneCoin < coin.radius + 3) {
       seedScene.earth.remove(coin);
       seedScene.earth.coins.splice(i, 1);
       i--;
@@ -174,7 +181,7 @@ const onAnimationFrameHandler = timeStamp => {
 
     const distanceAirplaneAsteroid = Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2 + (z1 - z2) ** 2);
 
-    if (distanceAirplaneAsteroid < asteroid.radius && gameStats.energy != 0) {
+    if (distanceAirplaneAsteroid < asteroid.radius + 2 && gameStats.energy != 0) {
       seedScene.earth.remove(asteroid);
       seedScene.earth.asteroids.splice(i, 1);
       i--;
@@ -201,5 +208,4 @@ windowResizeHanlder();
 window.addEventListener("resize", windowResizeHanlder);
 
 // dom
-document.body.style.margin = 0;
 document.body.appendChild(renderer.domElement);

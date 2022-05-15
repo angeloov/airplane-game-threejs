@@ -13,6 +13,8 @@ class Airplane extends Mesh {
     this.load3DModel();
 
     this.castShadow = true;
+    this.isAlive = true;
+    this.x = 0;
   }
 
   load3DModel() {
@@ -45,14 +47,24 @@ class Airplane extends Mesh {
   handleMovement(mousePosition) {
     if (!mousePosition) return;
 
-    const MIN_Y = 0;
-    const MAX_Y = 25;
+    if (this.isAlive) {
+      const MIN_Y = 0;
+      const MAX_Y = 25;
 
-    const viewportHeight = document.body.clientHeight;
+      const viewportHeight = document.body.clientHeight;
 
-    const targetY = map(mousePosition.y, 0, viewportHeight, MAX_Y, MIN_Y);
-    this.position.y += (targetY - this.position.y) * 0.1;
-    this.rotation.x = (targetY - this.position.y) * 0.08;
+      const targetY = map(mousePosition.y, 0, viewportHeight, MAX_Y, MIN_Y);
+      this.position.y += (targetY - this.position.y) * 0.1;
+      this.rotation.x = (targetY - this.position.y) * 0.08;
+    } else {
+      const f = x => (-12 * x ** 2) / 400 + (7 * x) / 60 + this.position.y;
+      this.position.x = this.x;
+      this.position.y = f(this.x);
+
+      this.rotation.x = -Math.sin(0.15 * this.x);
+
+      this.x += 0.1;
+    }
   }
 }
 

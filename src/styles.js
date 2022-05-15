@@ -3,6 +3,7 @@ import InterFont from "./fonts/InterSemiBold.ttf";
 
 const style = {
   body: {
+    margin: 0,
     background: "linear-gradient(180deg, rgba(255,247,205,1) 0%, rgba(205,124,49,1) 55%)",
   },
   "@font-face": {
