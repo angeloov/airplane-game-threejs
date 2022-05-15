@@ -20,12 +20,11 @@ class Scene extends Group {
     this.earth = new Earth(1000);
     this.airplane = new Airplane();
 
-
     this.objects.push(this.airplane, this.earth);
     this.addAllObjectsToScene();
 
     this.setupLights();
-    this.toggleAxisHelper();
+    // this.toggleAxisHelper();
   }
 
   addAllObjectsToScene() {
@@ -59,9 +58,9 @@ class Scene extends Group {
     // light.lookAt(0, 0, 0)
     // light.shadow.mapSize.set(100, 100)
 
-    let a = new CameraHelper(light.shadow.camera);
+    // let a = new CameraHelper(light.shadow.camera);
+    // this.add(a);
 
-    this.add(a);
     let ambientLight = new AmbientLight(0xdc8874, 0.7);
     this.add(ambientLight);
 

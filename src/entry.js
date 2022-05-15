@@ -10,8 +10,7 @@
 import { WebGLRenderer, PerspectiveCamera, Scene, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import SeedScene from "./objects/Scene.js";
-import * as dat from "dat.gui";
-import style from "./styles";
+// import * as dat from "dat.gui";
 
 const scene = new Scene();
 const camera = new PerspectiveCamera();
@@ -19,8 +18,6 @@ const renderer = new WebGLRenderer({ antialias: true, alpha: true });
 const seedScene = new SeedScene();
 
 scene.fog = new Fog(0xefd2a0, 350, 700);
-// scene.background = new Color(0x00ff00);
-// scene
 scene.add(seedScene);
 
 export const gameStats = {
@@ -34,16 +31,16 @@ export const gameStats = {
   resetEnergy: () => (this.energy = 100),
 };
 
-const gui = new dat.GUI();
-gui.add(camera.rotation, "x", -Math.PI, Math.PI);
-// gui.add(camera.rotation, "y", -Math.PI, Math.PI);
-gui.add(camera.rotation, "z", -Math.PI, Math.PI);
-gui.add(gameStats, "rotationSpeed", 0.001, 0.004, 0.0001);
+// const gui = new dat.GUI();
+// gui.add(camera.rotation, "x", -Math.PI, Math.PI);
+// // gui.add(camera.rotation, "y", -Math.PI, Math.PI);
+// gui.add(camera.rotation, "z", -Math.PI, Math.PI);
+// gui.add(gameStats, "rotationSpeed", 0.001, 0.004, 0.0001);
 
-const fncs = {
-  spawnCoins: () => seedScene.earth.spawnCoins(),
-};
-gui.add(fncs, "spawnCoins");
+// const fncs = {
+//   spawnCoins: () => seedScene.earth.spawnCoins(),
+// };
+// gui.add(fncs, "spawnCoins");
 
 // camera
 camera.position.set(70, 35, 0);
@@ -105,11 +102,16 @@ document.body.addEventListener("keydown", e => {
   else if (e.key === "\\") seedScene.earth.spawnAsteroid();
 });
 
+const endgameOverlay = document.querySelector("#endgame-overlay");
+endgameOverlay.addEventListener("click", () => {
+  location.reload();
+});
+
+const showEndScreen = () => (endgameOverlay.style.display = "grid");
+
 import { Clock } from "three";
 import { random } from "./lib/utils.js";
 import { Fog } from "three";
-import { Color } from "three";
-import { WebGLMultipleRenderTargets } from "three";
 const clock = new Clock();
 
 let nextTimeAsteroidWillSpawn;
@@ -141,6 +143,7 @@ const onAnimationFrameHandler = timeStamp => {
 
   if (gameStats.energy === 0 && gameStats.isPlaying) {
     console.log("Game over");
+    showEndScreen();
     gameStats.isPlaying = false;
     seedScene.airplane.isAlive = false;
   }

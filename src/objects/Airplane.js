@@ -44,6 +44,10 @@ class Airplane extends Mesh {
     );
   }
 
+  shake() {
+    console.log("Shaking");
+  }
+
   handleMovement(mousePosition) {
     if (!mousePosition) return;
 
