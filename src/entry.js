@@ -20,10 +20,21 @@ const seedScene = new SeedScene();
 // scene
 scene.add(seedScene);
 
+export const gameStats = {
+  energy: 100,
+  timeInSec: 0,
+  airplaneYCoord: 0,
+  rotationSpeed: 0.002,
+  minRotationSpeed: 0.002,
+  maxRotationSpeed: 0.005,
+  isPlaying: true,
+};
+
 const gui = new dat.GUI();
 gui.add(camera.rotation, "x", -Math.PI, Math.PI);
 gui.add(camera.rotation, "y", -Math.PI, Math.PI);
 gui.add(camera.rotation, "z", -Math.PI, Math.PI);
+gui.add(gameStats, "rotationSpeed", 0.001, 0.004, 0.0001);
 
 const fncs = {
   spawnCoins: () => seedScene.earth.spawnCoins(),
@@ -55,10 +66,6 @@ const mousePosition = {
   y: Math.round(document.body.clientHeight / 2),
 };
 
-const gameStats = {
-  energy: 50,
-};
-
 // --- Setup styles
 
 import jss from "jss";
@@ -72,18 +79,15 @@ sheet.attach();
 
 const energyElem = document.querySelector("#energy-bar");
 const decreaseEnergy = () => {
-  gameStats.energy -= 0.5;
-  energyElem.style.width = gameStats.energy * 4 + "px";
+  if (gameStats.energy <= 0) {
+    gameStats.energy = 0;
+    energyElem.style.width = gameStats.energy * 2 + "px";
+    return;
+  }
+  
+  gameStats.energy -= 2;
+  energyElem.style.width = gameStats.energy * 2 + "px";
 };
-
-setInterval(() => {
-  decreaseEnergy();
-}, 500);
-
-console.log(seedScene.children);
-
-// let scoreP = document.querySelector("#score");
-// updateScore();
 
 // ---
 
@@ -94,11 +98,14 @@ document.body.addEventListener("mousemove", e => {
 
 document.body.addEventListener("keydown", e => {
   if (e.ctrlKey) seedScene.earth.spawnCoin();
-  else if (e.key === "\\") seedScene.earth.removeCoin();
+  else if (e.key === "\\") seedScene.earth.spawnAsteroid();
 });
 
 import { Clock } from "three";
+import { random } from "./lib/utils.js";
 const clock = new Clock();
+
+let nextTimeAsteroidWillSpawn;
 
 // render loop
 const onAnimationFrameHandler = timeStamp => {
@@ -107,11 +114,35 @@ const onAnimationFrameHandler = timeStamp => {
 
   seedScene.airplane.handleMovement(mousePosition);
 
-  if (seedScene.earth) seedScene.earth.rotation.x += 0.001;
+  // Ran each second
+  const seconds = Math.floor(timeStamp / 1000);
+  if (seconds > gameStats.timeInSec) {
+    gameStats.timeInSec = seconds;
 
-  seedScene.earth.angle += 0.001;
+    nextTimeAsteroidWillSpawn = Math.floor(random(3, 8));
+    decreaseEnergy();
+
+    if (gameStats.energy >= 20 || gameStats.energy <= 80) {
+      gameStats.rotationSpeed = gameStats.maxRotationSpeed;
+    } else {
+      gameStats.rotationSpeed = gameStats.minRotationSpeed;
+    }
+
+    if (seconds % 6 === 0) seedScene.earth.spawnCoins();
+    else if (seconds % nextTimeAsteroidWillSpawn === 0) seedScene.earth.spawnAsteroid();
+  }
+
+  if (gameStats.energy === 0) {
+    console.log("Game over");
+    gameStats.isPlaying = false;
+  }
+
+  if (seedScene.earth) seedScene.earth.rotation.x += gameStats.rotationSpeed;
+  seedScene.earth.angle += gameStats.rotationSpeed;
 
   const delta = clock.getDelta();
+
+  gameStats.airplaneYCoord = seedScene.airplane.position.y;
 
   if (seedScene.airplane.mixer) {
     seedScene.airplane.mixer.update(delta);
@@ -131,7 +162,25 @@ const onAnimationFrameHandler = timeStamp => {
       seedScene.earth.coins.splice(i, 1);
       i--;
 
-      gameStats.energy++;
+      gameStats.energy += 2;
+    }
+  }
+
+  for (let i = 0; i < seedScene.earth.asteroids.length; i++) {
+    let asteroid = seedScene.earth.asteroids[i];
+
+    const { x: x1, y: y1, z: z1 } = seedScene.airplane.position;
+    const { x: x2, y: y2, z: z2 } = asteroid.getWorldPosition(new Vector3(0, 0, 0));
+
+    const distanceAirplaneAsteroid = Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2 + (z1 - z2) ** 2);
+
+    if (distanceAirplaneAsteroid < asteroid.radius && gameStats.energy != 0) {
+      seedScene.earth.remove(asteroid);
+      seedScene.earth.asteroids.splice(i, 1);
+      i--;
+
+      gameStats.energy -= 10;
+      console.log(gameStats.energy);
     }
   }
 

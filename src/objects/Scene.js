@@ -28,11 +28,8 @@ class Scene extends Group {
 
     this.earth = new Earth(1000);
     this.airplane = new Airplane();
-    this.coins = [];
 
-    this.asteroid = new Asteroid();
-
-    this.objects.push(this.airplane, this.earth, this.asteroid);
+    this.objects.push(this.airplane, this.earth);
     this.addAllObjectsToScene();
 
     this.setupLights();
@@ -68,8 +65,7 @@ class Scene extends Group {
     this.add(a);
 
     let ambientLight = new AmbientLight(0x404040);
-    this.add(ambientLight)
-
+    this.add(ambientLight);
 
     this.add(light);
     this.add(light.target);

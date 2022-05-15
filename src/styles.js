@@ -1,10 +1,9 @@
 import jss from "jss";
-import backgroundImage from "./assets/background.png";
 import InterFont from "./fonts/InterSemiBold.ttf";
 
 const style = {
   body: {
-    "background-image": `url(${backgroundImage})`,
+    background: "linear-gradient(180deg, rgba(255,247,205,1) 0%, rgba(205,124,49,1) 55%)",
   },
   "@font-face": {
     "font-family": "Inter",
@@ -12,20 +11,28 @@ const style = {
   },
   overlay: {
     position: "absolute",
-    left: "50%",
-    transform: "translate(-50%, 0)",
+    right: "2.5%",
+    // transform: "translate(-50%, 0)",
     "margin-top": "2rem",
+  },
+  container: {
+    background: "#FFECA8",
     display: "flex",
     "justify-content": "center",
     "align-items": "center",
+    padding: "1.5rem",
+    "border-radius": "1rem",
+    "box-shadow": "0px 2px 8px -1px rgba(112, 144, 176, 0.12)"
   },
   "energy-label": {
     color: "#F35E52",
     "font-family": "Inter, Helvetica, Arial, sans-serif",
     "font-weight": 600,
+    margin: 0,
+    "user-select": "none"
   },
   "background-bar": {
-    background: "#FFE380",
+    background: "#FFF4CC",
     height: "16px",
     width: "200px",
     "margin-left": "1rem",
@@ -38,7 +45,7 @@ const style = {
     width: "200px",
     background: "#F35E52",
     "border-radius": "8px",
-    "transition": "width 0.2s ease"
+    transition: "width 0.2s ease",
   },
 };
 
@@ -49,9 +56,11 @@ document.body.classList.add(classes.body);
 
 document.body.innerHTML += `
   <div class="${classes.overlay}">
-    <p class="${classes["energy-label"]}">Energy</p>
-    <div class="${classes["background-bar"]}">
-      <div id="energy-bar" class="${classes["energy-bar"]}"></div>
+    <div class="${classes["container"]}">
+      <p class="${classes["energy-label"]}">Energy</p>
+      <div class="${classes["background-bar"]}">
+        <div id="energy-bar" class="${classes["energy-bar"]}"></div>
+      </div>
     </div>
   </div>
 `;

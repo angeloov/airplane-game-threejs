@@ -6,6 +6,8 @@ import earthModel from "../models/Earth.glb";
 import Coin from "./Coin";
 import Asteroid from "./Asteroid";
 
+import { gameStats } from "../entry";
+
 class Earth extends Mesh {
   constructor(radius) {
     // let earthGeom = new BoxGeometry(32, 32, 32);
@@ -22,12 +24,14 @@ class Earth extends Mesh {
 
     this.receiveShadow = true;
     this.castShadow = true;
+
+    console.log(this);
   }
 
   spawnCoin() {
     const coin = new Coin(1);
 
-    const offsetAngle = 0.05;
+    const offsetAngle = 0.1;
     const angle = this.angle + offsetAngle;
 
     const radius = this.radius + 15;
@@ -44,18 +48,18 @@ class Earth extends Mesh {
   }
 
   spawnCoins() {
-    let numOfCoins = Math.ceil(3 + Math.random() * 5);
+    let numOfCoins = Math.ceil(random(3, 8));
 
     const radius = this.radius + 10;
 
     const c = 10;
     const d = 50;
 
-    let angle = this.angle + 0.05;
+    let angle = this.angle + 0.1;
     for (let i = 0; i < numOfCoins; i++) {
       const coin = new Coin(1);
 
-      angle += i * 0.003;
+      angle += i * 0.006;
       coin.position.z = Math.cos(angle) * radius + c * Math.cos(d * angle);
       coin.position.y = Math.sin(angle) * radius + c * Math.sin(d * angle);
       coin.position.x = 0;
@@ -74,8 +78,14 @@ class Earth extends Mesh {
 
   spawnAsteroid() {
     const asteroid = new Asteroid();
-    // To implement
+    const angle = this.angle + 0.1;
+    const r = gameStats.airplaneYCoord + this.radius;
+
+    asteroid.position.z = r * Math.cos(angle);
+    asteroid.position.y = r * Math.sin(angle);
+
     this.asteroids.push(asteroid);
+    this.add(asteroid);
   }
 
   load3DModel() {
@@ -96,7 +106,7 @@ class Earth extends Mesh {
         this.add(obj.scene);
       },
       null,
-      () => console.error("Azz! Errore")
+      e => console.error("Error in loading Earth model", e)
     );
   }
 }
