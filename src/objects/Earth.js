@@ -2,17 +2,19 @@ import { Mesh, MeshPhongMaterial, Group, CylinderBufferGeometry } from "three";
 
 import { random } from "../lib/utils";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import earthModel from "../models/Earth.glb";
 import Coin from "./Coin";
 import Asteroid from "./Asteroid";
 
 import { gameStats } from "../entry";
+
 import { BoxGeometry } from "three";
+import cloudOne from "../models/Cloud_1.fbx";
 
 class Earth extends Mesh {
   constructor(radius) {
     let geom = new CylinderBufferGeometry(radius - 10, radius - 10, 2000, 40, 10, false);
-    // let earthGeom = new BoxGeometry(32, 32, 32);
     let earthMater = new MeshPhongMaterial({
       color: 0x68c3c0,
       opacity: 1,
@@ -64,7 +66,7 @@ class Earth extends Mesh {
     this.receiveShadow = true;
     this.castShadow = true;
 
-    console.log(this);
+    // this.spawnClouds();
   }
 
   spawnCoin() {
@@ -146,6 +148,26 @@ class Earth extends Mesh {
       },
       null,
       e => console.error("Error in loading Earth model", e)
+    );
+  }
+
+  spawnClouds() {
+    let loader = new FBXLoader();
+    let clouds = [];
+
+    loader.load(
+      cloudOne,
+      obj => {
+        // clouds.push(JSON.parse(JSON.stringify(obj)));
+
+        // let c = clouds[0];
+
+        obj.position.y = 1060;
+        obj.scale.setScalar(0.1);
+        this.add(obj);
+      },
+      null,
+      e => console.error(e)
     );
   }
 }

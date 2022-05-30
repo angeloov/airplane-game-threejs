@@ -61,13 +61,13 @@ class Airplane extends Mesh {
       this.position.y += (targetY - this.position.y) * 0.1;
       this.rotation.x = (targetY - this.position.y) * 0.08;
     } else {
-      const f = x => (-12 * x ** 2) / 400 + (7 * x) / 60 + this.position.y;
+      const f = x => (-12 * x ** 2) / 600 + (7 * x) / 60 + this.position.y;
       this.position.x = this.x;
       this.position.y = f(this.x);
 
       this.rotation.x = -Math.sin(0.15 * this.x);
 
-      this.x += 0.1;
+      this.x += 0.25;
     }
   }
 }

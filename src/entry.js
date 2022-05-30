@@ -26,24 +26,13 @@ export const gameStats = {
   airplaneYCoord: 0,
   rotationSpeed: 0.002,
   minRotationSpeed: 0.002,
-  maxRotationSpeed: 0.0035,
+  maxRotationSpeed: 0.0028,
   isPlaying: true,
-  resetEnergy: () => (this.energy = 100),
+  meters: 0,
 };
 
-// const gui = new dat.GUI();
-// gui.add(camera.rotation, "x", -Math.PI, Math.PI);
-// // gui.add(camera.rotation, "y", -Math.PI, Math.PI);
-// gui.add(camera.rotation, "z", -Math.PI, Math.PI);
-// gui.add(gameStats, "rotationSpeed", 0.001, 0.004, 0.0001);
-
-// const fncs = {
-//   spawnCoins: () => seedScene.earth.spawnCoins(),
-// };
-// gui.add(fncs, "spawnCoins");
-
 // camera
-camera.position.set(70, 35, 0);
+camera.position.set(70, 25, 0);
 camera.lookAt(new Vector3(0, 20, 0));
 
 // renderer
@@ -52,15 +41,6 @@ renderer.setPixelRatio(window.devicePixelRatio);
 // renderer.shadowMap.type = PCFSoftShadowMap;
 renderer.shadowMap.enabled = true;
 renderer.physicallyCorrectLights = true;
-
-// orbit controls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.dragToLook = true;
-controls.enableDamping = true;
-controls.enablePan = false;
-controls.dampingFactor = 0.3;
-controls.minDistance = 10;
-controls.maxDistance = 1000;
 
 const mousePosition = {
   x: Math.round(document.body.clientWidth / 2),
@@ -107,7 +87,16 @@ endgameOverlay.addEventListener("click", () => {
   location.reload();
 });
 
-const showEndScreen = () => (endgameOverlay.style.display = "grid");
+const showEndScreen = () => {
+  endgameOverlay.style.display = "grid";
+
+  const distance = document.querySelector("#travelled-distance");
+  distance.innerText += ` ${gameStats.meters} meters`;
+};
+
+const updateMetersCounter = meters => {
+  document.getElementById("meter-counter").innerText = meters + " meters";
+};
 
 import { Clock } from "three";
 import { random } from "./lib/utils.js";
@@ -141,23 +130,31 @@ const onAnimationFrameHandler = timeStamp => {
     else if (seconds % nextTimeAsteroidWillSpawn === 0) seedScene.earth.spawnAsteroid();
   }
 
+  // Meters counter
+  if (gameStats.isPlaying) updateMetersCounter(++gameStats.meters);
+
+  // Game over screen
   if (gameStats.energy === 0 && gameStats.isPlaying) {
     console.log("Game over");
+
     showEndScreen();
     gameStats.isPlaying = false;
     seedScene.airplane.isAlive = false;
   }
 
+  // Rotate earth
   if (seedScene.earth) seedScene.earth.rotation.x += gameStats.rotationSpeed;
   seedScene.earth.angle += gameStats.rotationSpeed;
 
   gameStats.airplaneYCoord = seedScene.airplane.position.y;
 
+  // Animations
   const delta = clock.getDelta();
   if (seedScene.airplane.mixer) {
     seedScene.airplane.mixer.update(delta);
   }
 
+  // Collisions
   for (let i = 0; i < seedScene.earth.coins.length; i++) {
     let coin = seedScene.earth.coins[i];
 
@@ -193,8 +190,6 @@ const onAnimationFrameHandler = timeStamp => {
       console.log(gameStats.energy);
     }
   }
-
-  controls.update();
 
   window.requestAnimationFrame(onAnimationFrameHandler);
 };
