@@ -10,7 +10,7 @@ import Asteroid from "./Asteroid";
 import { gameStats } from "../entry";
 
 import { BoxGeometry } from "three";
-import cloudOne from "../models/Cloud_1.fbx";
+// import cloudOne from "../models/clouds/Cloud_1.fbx";
 
 class Earth extends Mesh {
   constructor(radius) {

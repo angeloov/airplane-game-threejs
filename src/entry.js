@@ -8,9 +8,7 @@
  */
 
 import { WebGLRenderer, PerspectiveCamera, Scene, Vector3 } from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import SeedScene from "./objects/Scene.js";
-// import * as dat from "dat.gui";
 
 const scene = new Scene();
 const camera = new PerspectiveCamera();
@@ -24,21 +22,22 @@ export const gameStats = {
   energy: 100,
   timeInSec: 0,
   airplaneYCoord: 0,
-  rotationSpeed: 0.002,
+  rotationSpeed: 0.0025,
   minRotationSpeed: 0.002,
   maxRotationSpeed: 0.0028,
   isPlaying: true,
   meters: 0,
+  addMeters: function () {
+    this.meters++;
+  },
 };
 
-// camera
+// Configure camera
 camera.position.set(70, 25, 0);
 camera.lookAt(new Vector3(0, 20, 0));
 
-// renderer
+// Configure renderer
 renderer.setPixelRatio(window.devicePixelRatio);
-// renderer.setClearColor(0x000, 0);
-// renderer.shadowMap.type = PCFSoftShadowMap;
 renderer.shadowMap.enabled = true;
 renderer.physicallyCorrectLights = true;
 
@@ -46,6 +45,11 @@ const mousePosition = {
   x: Math.round(document.body.clientWidth / 2),
   y: Math.round(document.body.clientHeight / 2),
 };
+
+document.body.addEventListener("mousemove", e => {
+  mousePosition.x = e.clientX;
+  mousePosition.y = e.clientY;
+});
 
 // --- Setup styles
 
@@ -60,92 +64,86 @@ sheet.attach();
 
 const energyElem = document.querySelector("#energy-bar");
 const decreaseEnergy = () => {
-  if (gameStats.energy <= 0) {
+  if (gameStats.energy > 0) {
+    gameStats.energy -= 2;
+  } else {
     gameStats.energy = 0;
-    energyElem.style.width = gameStats.energy * 2 + "px";
-    return;
   }
 
-  gameStats.energy -= 2;
   energyElem.style.width = gameStats.energy * 2 + "px";
 };
 
 // ---
 
-document.body.addEventListener("mousemove", e => {
-  mousePosition.x = e.clientX;
-  mousePosition.y = e.clientY;
-});
-
+// Uncomment in case you want to spawn coins/asteroids.
 document.body.addEventListener("keydown", e => {
   if (e.ctrlKey) seedScene.earth.spawnCoin();
   else if (e.key === "\\") seedScene.earth.spawnAsteroid();
 });
 
 const endgameOverlay = document.querySelector("#endgame-overlay");
-endgameOverlay.addEventListener("click", () => {
-  location.reload();
-});
-
 const showEndScreen = () => {
   endgameOverlay.style.display = "grid";
+  endgameOverlay.addEventListener("click", () => location.reload());
 
   const distance = document.querySelector("#travelled-distance");
   distance.innerText += ` ${gameStats.meters} meters`;
 };
 
-const updateMetersCounter = meters => {
-  document.getElementById("meter-counter").innerText = meters + " meters";
+const updateMetersCounter = () => {
+  document.getElementById("meter-counter").innerText = gameStats.meters + " meters";
 };
+
+const onEverySecondHandler = () => {
+  const seconds = gameStats.timeInSec;
+
+  if (gameStats.energy > 20 && gameStats.energy < 80) {
+    gameStats.rotationSpeed = gameStats.maxRotationSpeed;
+  } else {
+    gameStats.rotationSpeed = gameStats.minRotationSpeed;
+  }
+
+  const nextTimeAsteroidWillSpawn = Math.round(random(1, 3));
+  const nextTimeCoinWillSpawn = 4;
+
+  if (seconds % nextTimeCoinWillSpawn === 0) seedScene.earth.spawnCoins();
+  else if (seconds % nextTimeAsteroidWillSpawn === 0) seedScene.earth.spawnAsteroid();
+
+  decreaseEnergy();
+
+  gameStats.timeInSec++;
+};
+
+setInterval(onEverySecondHandler, 1000);
 
 import { Clock } from "three";
 import { random } from "./lib/utils.js";
 import { Fog } from "three";
 const clock = new Clock();
 
-let nextTimeAsteroidWillSpawn;
-
-// render loop
+// Render loop
 const onAnimationFrameHandler = timeStamp => {
   renderer.render(scene, camera);
   seedScene.update && seedScene.update(timeStamp);
 
   seedScene.airplane.handleMovement(mousePosition);
 
-  // Ran each second
-  const seconds = Math.floor(timeStamp / 1000);
-  if (seconds > gameStats.timeInSec) {
-    gameStats.timeInSec = seconds;
-
-    nextTimeAsteroidWillSpawn = Math.floor(random(1, 3));
-    decreaseEnergy();
-
-    if (gameStats.energy > 20 && gameStats.energy < 80) {
-      gameStats.rotationSpeed = gameStats.maxRotationSpeed;
-    } else {
-      gameStats.rotationSpeed = gameStats.minRotationSpeed;
-    }
-
-    if (seconds % 4 === 0) seedScene.earth.spawnCoins();
-    else if (seconds % nextTimeAsteroidWillSpawn === 0) seedScene.earth.spawnAsteroid();
-  }
-
   // Meters counter
-  if (gameStats.isPlaying) updateMetersCounter(++gameStats.meters);
+  if (gameStats.isPlaying) {
+    gameStats.addMeters();
+    updateMetersCounter();
 
-  // Game over screen
-  if (gameStats.energy === 0 && gameStats.isPlaying) {
-    console.log("Game over");
-
-    showEndScreen();
-    gameStats.isPlaying = false;
-    seedScene.airplane.isAlive = false;
+    // Game over screen
+    if (gameStats.energy === 0) {
+      showEndScreen();
+      gameStats.isPlaying = false;
+      seedScene.airplane.isAlive = false;
+    }
   }
 
   // Rotate earth
   if (seedScene.earth) seedScene.earth.rotation.x += gameStats.rotationSpeed;
   seedScene.earth.angle += gameStats.rotationSpeed;
-
   gameStats.airplaneYCoord = seedScene.airplane.position.y;
 
   // Animations
@@ -186,13 +184,15 @@ const onAnimationFrameHandler = timeStamp => {
       seedScene.earth.asteroids.splice(i, 1);
       i--;
 
+      seedScene.airplane.shake()
+
       gameStats.energy -= 10;
-      console.log(gameStats.energy);
     }
   }
 
   window.requestAnimationFrame(onAnimationFrameHandler);
 };
+
 window.requestAnimationFrame(onAnimationFrameHandler);
 
 // resize
