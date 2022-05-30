@@ -65,20 +65,24 @@ class Airplane extends Mesh {
       if (this.isShaking) {
         if (this.x === 0) this.x = Math.PI;
 
-        if (this.x >= 7*Math.PI/2) {
+        if (this.x >= (7 * Math.PI) / 2) {
           this.x = 0;
           this.isShaking = false;
           this.rotation.z = 0;
           return;
         }
 
-        const a = 12;
-        const f = x => 2*(Math.E)**(-0.5*x)*Math.sin(6*x);
+        const f = x => Math.E ** (-0.5 * x) * Math.sin(6 * x);
 
         this.x += 0.1;
         this.rotation.z = f(this.x);
       }
     } else {
+      if (this.isShaking) {
+        this.x = 0;
+        this.isShaking = false;
+      }
+      
       const f = x => (-12 * x ** 2) / 600 + (7 * x) / 60 + this.position.y;
       this.position.x = this.x;
       this.position.y = f(this.x);

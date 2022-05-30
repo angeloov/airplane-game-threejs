@@ -7,9 +7,12 @@ import earthModel from "../models/Earth.glb";
 import Coin from "./Coin";
 import Asteroid from "./Asteroid";
 
+import { map } from "../lib/utils";
+
 import { gameStats } from "../entry";
 
 import { BoxGeometry } from "three";
+import Cloud from "./Cloud";
 // import cloudOne from "../models/clouds/Cloud_1.fbx";
 
 class Earth extends Mesh {
@@ -65,8 +68,19 @@ class Earth extends Mesh {
 
     this.receiveShadow = true;
     this.castShadow = true;
+  }
 
-    // this.spawnClouds();
+  spawnClouds() {
+    for (let i = 0; i < 20; i++) {
+      const angle = map(i, 0, 19, 0, Math.PI) + Math.random();
+      const r = this.radius + 55;
+
+      let cloud = new Cloud();
+      // cloud.rotateZ(-angle)
+      cloud.position.y = r * Math.sin(angle);
+      cloud.position.z = r * Math.cos(angle);
+      this.add(cloud);
+    }
   }
 
   spawnCoin() {
@@ -148,26 +162,6 @@ class Earth extends Mesh {
       },
       null,
       e => console.error("Error in loading Earth model", e)
-    );
-  }
-
-  spawnClouds() {
-    let loader = new FBXLoader();
-    let clouds = [];
-
-    loader.load(
-      cloudOne,
-      obj => {
-        // clouds.push(JSON.parse(JSON.stringify(obj)));
-
-        // let c = clouds[0];
-
-        obj.position.y = 1060;
-        obj.scale.setScalar(0.1);
-        this.add(obj);
-      },
-      null,
-      e => console.error(e)
     );
   }
 }

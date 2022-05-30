@@ -10,6 +10,7 @@ import { MeshPhongMaterial } from "three";
 import { DirectionalLight } from "three";
 import { Vector3 } from "three";
 import { HemisphereLight, Fog } from "three";
+import Cloud from "./Cloud";
 
 class Scene extends Group {
   constructor() {
@@ -25,6 +26,8 @@ class Scene extends Group {
 
     this.setupLights();
     // this.toggleAxisHelper();
+
+    
   }
 
   addAllObjectsToScene() {

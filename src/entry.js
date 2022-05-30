@@ -184,12 +184,31 @@ const onAnimationFrameHandler = timeStamp => {
       seedScene.earth.asteroids.splice(i, 1);
       i--;
 
-      seedScene.airplane.shake()
+      seedScene.airplane.shake();
 
       gameStats.energy -= 10;
     }
   }
 
+  if (seedScene.earth.coins.length > 32) {
+    for (let i = 0; i < 20; i++) {
+      let coin = seedScene.earth.coins[i];
+      seedScene.earth.remove(coin)
+    }
+
+    seedScene.earth.coins.splice(0, 20);
+  }
+  
+  if (seedScene.earth.asteroids.length > 32) {
+    for (let i = 0; i < 20; i++) {
+      let asteroid = seedScene.earth.asteroids[i];
+      seedScene.earth.remove(asteroid)
+    }
+
+    seedScene.earth.asteroids.splice(0, 20);
+  }
+
+  
   window.requestAnimationFrame(onAnimationFrameHandler);
 };
 
